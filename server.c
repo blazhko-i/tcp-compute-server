@@ -8,8 +8,6 @@
 
 #define PORT 4455
 
-int *split();
-
 int main() {
     int sockfd;
     struct sockaddr_in serverAddr;
@@ -18,8 +16,8 @@ int main() {
     struct sockaddr_in new_Addr;
 
     socklen_t addr_size;
-    char buffer[1024];
-    char send_buffer[1024];
+    char type_of_operation[24];
+    int resv_buffer_int[20];
 
     sockfd = socket(PF_INET, SOCK_STREAM, 0);
     memset(&serverAddr, '\0', sizeof(serverAddr));
@@ -35,68 +33,19 @@ int main() {
 
     newSocket = accept(sockfd, (struct sockaddr *) &new_Addr, &addr_size);
 
-    // Получение данных от клиента
-//    recv(newSocket, buffer, 1024, 0);
-//    printf("Received: %s\n", buffer);
-
-    // Отправка данных клиенту
-//    strcpy(send_buffer, buffer);
-//    send(newSocket, send_buffer, strlen(buffer), 0);
-
-    // Массив значений подлежащих обработке
-    int *arr = split();
-    send(newSocket, arr, 20, 0);
-
-    // Ip адрес
-//    char str[100];
-//    inet_ntop(AF_INET, &(new_Addr.sin_addr), str, INET_ADDRSTRLEN);
-//    printf("%s\n", str);
-
-//    int k = 0;
-//    while (arr[k]) {
-//        printf("%d\n", arr[k]);
-//        k++;
-//    }
+    // Прием данных клиента
+    recv(newSocket, resv_buffer_int, 40, 0); // Прием массива чисел
+    int k = 0;
+    while (resv_buffer_int[k]) {
+        printf("%s%d\n", "arr: ", resv_buffer_int[k]);
+        k++;
+    }
+    recv(newSocket, type_of_operation, 20, 0); // Тип операции
+    printf("%s\n", type_of_operation);
 
     // Завершение сеанса
     int true = 1;
     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &true, sizeof(int));
 
     return 0;
-}
-
-/**
- * Разбиение строки на элементы по пррблелу. Запись элементов в массив
- * @return Указатель на массив
- */
-int *split() {
-    // Набор символов, которые должны входить в искомый сегмент
-    char sep[10] = " ";
-    // Переменная, в которую будут заноситься начальные адреса частей
-    char *istr;
-    int *arr_of_numbers;
-    arr_of_numbers = malloc(sizeof(int));
-
-    char str[24];
-    fgets(str, sizeof(str), stdin);
-
-    printf("Исходная строка: %s\n", str);
-    printf("Результат разбиения:\n");
-    // Выделение первой части строки
-    istr = strtok(str, sep);
-
-    // Выделение последующих частей
-    int count = 0;
-    while (istr != NULL) {
-        // str->int
-        arr_of_numbers[count] = atoi(istr);
-        arr_of_numbers = realloc(arr_of_numbers, (count + 2) * sizeof(int));
-
-        // Выделение очередной части строки
-        istr = strtok(NULL, sep);
-        count++;
-    }
-
-    int *p = arr_of_numbers;
-    return p;
 }
