@@ -35,9 +35,12 @@ int main() {
     // Проверка, содержит ли строка только числа
     bool t = true;
     char str_s[50];
-    printf("Enter the numbers or text: ");
-    scanf("%[^\n]%*c", str_s);
-//    fgets(str_s, 50, stdin);
+    // Проверка на ввод пустой строки
+    do {
+        printf("Enter the numbers or text: ");
+        fgets(str_s, 30, stdin);
+    } while (str_s[0] == '\n' && str_s[1] == '\0');
+
     t = isDigit(str_s);
     // Если только числа, то ...
     if (t == true) {

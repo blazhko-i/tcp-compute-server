@@ -71,3 +71,5 @@ int calculator(const int arr_of_numbers[], char *type_of_operation) {
         return mult;
     }
 }
+
+
