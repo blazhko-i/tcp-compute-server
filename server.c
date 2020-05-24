@@ -1,12 +1,16 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
-//#include <sys/types.h>
+#include <sys/types.h>
 #include <string.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "client.c"
 
 #define PORT 4455
+
+int calculator(const int arr_of_numbers[], char *type_of_operation);
 
 int main() {
     int sockfd;
@@ -35,17 +39,35 @@ int main() {
 
     // Прием данных клиента
     recv(newSocket, resv_buffer_int, 40, 0); // Прием массива чисел
-    int k = 0;
-    while (resv_buffer_int[k]) {
-        printf("%s%d\n", "arr: ", resv_buffer_int[k]);
-        k++;
-    }
     recv(newSocket, type_of_operation, 20, 0); // Тип операции
-    printf("%s\n", type_of_operation);
+
+    // Обработка данных клиента
+    int res = calculator(resv_buffer_int, type_of_operation);
+    // Отправка результата клиенту
+    send(newSocket, &res, 40, 0);
 
     // Завершение сеанса
-    int true = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &true, sizeof(int));
+    int tr = true;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &tr, sizeof(int));
 
     return 0;
+}
+
+int calculator(const int arr_of_numbers[], char *type_of_operation) {
+    int k = 0;
+    int sum = 0;
+    int mult = 1;
+    if (strcmp(type_of_operation, "add") == 0) {
+        while (arr_of_numbers[k]) {
+            sum += arr_of_numbers[k];
+            k++;
+        }
+        return sum;
+    } else {
+        while (arr_of_numbers[k]) {
+            mult *= arr_of_numbers[k];
+            k++;
+        }
+        return mult;
+    }
 }
